@@ -6,6 +6,7 @@ import {Text, SafeAreaView, StyleSheet} from 'react-native'
 import {RoundedButton} from '../components'
 import {Colors} from '../themes'
 import Title from "../components/Title";
+import RectangleButton from "../components/RectangleButton";
 
 const styles = StyleSheet.create({
     container: {
@@ -22,6 +23,7 @@ export default class RootContainer extends React.PureComponent<null> {
                 <Title> Hi ya!</Title>
                 <Text>Text!</Text>
                 <RoundedButton onPress={() => null}>Button text</RoundedButton>
+                <RectangleButton onPress={() => null}>Button text</RectangleButton>
             </SafeAreaView>
         )
     }
