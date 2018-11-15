@@ -1,6 +1,6 @@
 // @flow
 import React from 'react'
-import {Text, SafeAreaView, StyleSheet, Image} from 'react-native'
+import {Text, SafeAreaView, StyleSheet} from 'react-native'
 
 // components
 import {RoundedButton} from '../components'
