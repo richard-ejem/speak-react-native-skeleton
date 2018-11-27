@@ -1,8 +1,11 @@
 import React from 'react';
-import {StyleSheet, SafeAreaView, Text} from "react-native";
+import {StyleSheet, SafeAreaView, Text, TouchableOpacity} from "react-native";
 import {Colors} from "../themes";
-import {kittens} from "../data/kittens";
 import {RoundKitteh} from "../components/RoundKitteh";
+import Title from "../components/Title";
+import {loadMovieDetail} from "../api/movies";
+import {KittehImage} from "../components/KittehImage";
+import {lolcatize} from "../api/lol";
 
 const styles = StyleSheet.create({
     container: {
@@ -12,13 +15,57 @@ const styles = StyleSheet.create({
 })
 
 export class Detail extends React.PureComponent<null> {
+    state = {
+        detail: undefined,
+        loldOverview: undefined,
+        loldTitle: undefined,
+        showLold: true,
+    };
+
+    componentDidMount() {
+        const {id} = this.props.navigation.state.params;
+        loadMovieDetail(id).then(response => {
+            this.setState({detail: response.data});
+            lolcatize(response.data.overview).then(
+                loldOverview => this.setState({loldOverview})
+            )
+            lolcatize(response.data.title).then(
+                loldTitle => this.setState({loldTitle})
+            )
+        });
+    }
+
+    toggleLold = () => {
+        this.setState(({showLold}) => ({showLold: !showLold}))
+    }
+
     render() {
-        const {index} = this.props.navigation.state.params;
-        const kitten = kittens[index];
+        const {detail, loldOverview, showLold, loldTitle} = this.state;
         return (
             <SafeAreaView style={styles.container}>
-                <Text>{kitten.title}</Text>
-                <RoundKitteh size={kitten.size} />
+                {detail === undefined
+                    ? <React.Fragment>
+                        <Text>WAIT PLZ</Text>
+                        <RoundKitteh size={100} numKitteh={2}/>
+                    </React.Fragment>
+                    : <React.Fragment>
+                        <Title>{showLold && loldTitle ? loldTitle : detail.title}</Title>
+                        <Text>Adultz only: {detail.adult ? 'YEZ' : 'NO'}</Text>
+                        <TouchableOpacity
+                            onPress={this.toggleLold}
+                        >
+                        <KittehImage
+                            w={300}
+                            h={200}
+                            numKitteh={detail.adult ? 15 : 8}
+                        />
+                        </TouchableOpacity>
+                        <Text>{
+                            showLold && loldOverview ? loldOverview : detail.overview
+                        }</Text>
+
+                    </React.Fragment>
+                }
             </SafeAreaView>
         )
     }

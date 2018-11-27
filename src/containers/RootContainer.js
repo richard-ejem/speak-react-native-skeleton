@@ -6,12 +6,9 @@ import {FlatList, Text, SafeAreaView, StyleSheet} from 'react-native'
 import {RoundedButton} from '../components'
 import {Colors} from '../themes'
 import Title from "../components/Title";
-import RectangleButton from "../components/RectangleButton";
-
-// assets
-import ImageKitteh from "../../assets/kitteh.jpeg";
-import createCircleImage from "../components/createCircleImage";
-import {kittens} from "../data/kittens";
+import {RoundKitteh} from "../components/RoundKitteh";
+import {loadMovies} from "../api/movies";
+import {RectangleButton} from "../components/RectangleButton";
 
 const styles = StyleSheet.create({
     container: {
@@ -20,33 +17,74 @@ const styles = StyleSheet.create({
     },
 })
 
-const RoundedKitteh = createCircleImage(ImageKitteh);
-
 export default class RootContainer extends React.PureComponent {
 
-    static navigationOptions = { title: "Home" }
 
-    goToDetail = (index: number) => {
-        this.props.navigation.navigate("Detail", {index})
+    static navigationOptions = { title: "Home" };
+
+    state = {
+        loading: false,
+        page: 1,
+        movies: [],
     }
+
+    componentDidMount() {
+        this.loadNextPage()
+    }
+
+    goToDetail = (id) => {
+        this.props.navigation.navigate("Detail", {id})
+    }
+
+    loadNextPage = async () => {
+        if (this.state.loading) {
+            return false;
+        }
+        this.setState((prevState) => {
+            if (prevState.loading) {
+                return null;
+            }
+            loadMovies(prevState.page).then(this.updateResults);
+            return {
+                loading: true,
+                page: prevState.page + 1,
+            };
+        });
+    };
+
+    updateResults = result => {
+        this.setState((prevState) => ({
+            loading: false,
+            movies: [...prevState.movies, ...result.data.results],
+        }));
+    };
 
     render()
     {
+        console.log(this.state.movies)
         return (
             <SafeAreaView style={styles.container}>
-                <Title>Teh kitteh ultimate database</Title>
-                <RectangleButton onPress={() => null}>Button text</RectangleButton>
-                <RoundedKitteh size={100} />
-                <FlatList
-                    data={kittens}
-                    renderItem={({item, index}) =>
-                        <RoundedButton
-                            key={index}
-                            onPress={() => this.goToDetail(index)}>
-                            {item.title}
-                        </RoundedButton>
-                    }
-                />
+                <Title>Teh ultimet meowie databez</Title>
+
+                    :
+                    <FlatList
+                        data={this.state.movies}
+                        keyExtractor={(item) => item.id.toString()}
+                        renderItem={({item, index}) =>
+                            <RectangleButton
+                                key={index}
+                                onPress={() => this.goToDetail(item.id)}>
+                                {item.title}
+                            </RectangleButton>
+                        }
+                    />
+                }
+                {this.state.loading &&
+                    <React.Fragment>
+                        <Text>WAIT PLZ</Text>
+                        <RoundKitteh size={50}/>
+                    </React.Fragment>
+                }
             </SafeAreaView>
         )
     }

@@ -27,7 +27,7 @@ type Props = {|
     +children: string,
 |}
 
-export default class RoundedButton extends React.PureComponent<Props> {
+export class RectangleButton extends React.PureComponent<Props> {
     render()
     {
         const {children, onPress} = this.props;
