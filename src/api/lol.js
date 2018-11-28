@@ -11,3 +11,10 @@ export const lolcatize = async (text) => {
         })
     return response.data.match(/id="lolcat">(.*?)</)[1]
 }
+
+export const lolcatizeList = async (list) => {
+    const serialized = list.reduce((str, current, index) => `${str} @${index}@ ${current}`, '');
+    const translated = await lolcatize(serialized);
+    console.log(translated);
+    return list.map((_, i) => translated.match(new RegExp(`@${i}@ (.*?)(@[0-9]+@|$)`))[1]);
+};

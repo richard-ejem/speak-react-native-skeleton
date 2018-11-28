@@ -1,14 +1,18 @@
 // @flow
 import React from 'react'
-import {FlatList, Text, SafeAreaView, StyleSheet} from 'react-native'
+import {
+    FlatList,
+    SafeAreaView,
+    StyleSheet,
+    ActivityIndicator,
+} from 'react-native'
 
 // components
-import {RoundedButton} from '../components'
 import {Colors} from '../themes'
 import Title from "../components/Title";
-import {RoundKitteh} from "../components/RoundKitteh";
 import {loadMovies} from "../api/movies";
-import {RectangleButton} from "../components/RectangleButton";
+import {MovieListItem} from "../components/MovieListItem";
+import {MovieListSeparator} from "../components/MovieListSeparator";
 
 const styles = StyleSheet.create({
     container: {
@@ -17,10 +21,11 @@ const styles = StyleSheet.create({
     },
 })
 
+const keyExtractor = (item) => item.id.toString();
+
 export default class RootContainer extends React.PureComponent {
 
-
-    static navigationOptions = { title: "Home" };
+    static navigationOptions = { title: "Hoem" };
 
     state = {
         loading: false,
@@ -66,25 +71,26 @@ export default class RootContainer extends React.PureComponent {
             <SafeAreaView style={styles.container}>
                 <Title>Teh ultimet meowie databez</Title>
 
-                    :
-                    <FlatList
-                        data={this.state.movies}
-                        keyExtractor={(item) => item.id.toString()}
-                        renderItem={({item, index}) =>
-                            <RectangleButton
-                                key={index}
-                                onPress={() => this.goToDetail(item.id)}>
-                                {item.title}
-                            </RectangleButton>
-                        }
-                    />
-                }
-                {this.state.loading &&
-                    <React.Fragment>
-                        <Text>WAIT PLZ</Text>
-                        <RoundKitteh size={50}/>
-                    </React.Fragment>
-                }
+                <FlatList
+                    data={this.state.movies}
+                    keyExtractor={keyExtractor}
+                    onEndReached={this.loadNextPage}
+                    onEndReachedThreshold={0}
+                    renderItem={({item, index}) =>
+                        <MovieListItem
+                            key={index}
+                            onPress={() => this.goToDetail(item.id)}
+                            movie={item}
+                            number={index + 1}
+                        />
+                    }
+                    ListFooterComponent={
+                        this.state.loading
+                            ? ActivityIndicator
+                            : undefined
+                    }
+                    ItemSeparatorComponent={MovieListSeparator}
+                />
             </SafeAreaView>
         )
     }
